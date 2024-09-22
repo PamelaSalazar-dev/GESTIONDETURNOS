@@ -16,3 +16,4 @@ class Administrador extends persona {
     
     }
    
+?>

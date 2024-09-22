@@ -12,3 +12,5 @@ class Turno {
         $this->paciente = $paciente;
     }
 }
+
+?>

@@ -15,13 +15,15 @@ class Paciente {
         $sql = "SELECT dni, obraSocial, historiaClinica FROM pacientes";
         return Conexion::query($sql);
     }
-}
 
-function listarPacientes() {
-    $pacientes = Paciente::todosLosPacientes();
 
-    foreach ($pacientes as $paciente) {
-        echo "DNI: {$paciente->dni} | Obra social: {$paciente->obraSocial} | Historia clínica: {$paciente->historiaClinica}\n";
+    function listarPacientes() {
+        $pacientes = Paciente::todosLosPacientes();
+
+        foreach ($pacientes as $paciente) {
+            echo "DNI: {$paciente->dni} | Obra social: {$paciente->obraSocial} | Historia clínica: {$paciente->historiaClinica}\n";
+        }
     }
+
 }
 ?>

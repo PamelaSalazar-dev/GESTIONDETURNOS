@@ -18,4 +18,5 @@
 public function toString(){
     return "Nombre:".$this->getNombre()." Dni:".$this->getDni();
 }
+
 }
