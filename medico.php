@@ -15,11 +15,19 @@ class Medico {
     }
 }
 
-function listarMedicos() {
-    $medicos = Medico::todosLosMedicos();
+    function listarMedicos() {
+        $medicos = Medico::todosLosMedicos();
 
-    foreach ($medicos as $medico) {
-        echo "Matrícula: {$medico->matricula} | Especialidad: {$medico->especialidad}\n";
+        foreach ($medicos as $medico) {
+            echo "Matrícula: {$medico->matricula} | Especialidad: {$medico->especialidad}\n";
+        }
     }
-}
+    function listarMedicosPorEspecialidad($especialidad) {//nueva funcion agregada
+        $medicos = Medico::todosLosMedicos();
+
+        foreach ($medicos as $medico) {
+            if($medico->especialidad == $especialidad)//comprobar que ande!!!
+            echo "Matrícula: {$medico->matricula} | Especialidad: {$medico->especialidad}\n";
+        }
+    }
 ?>

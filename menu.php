@@ -27,8 +27,9 @@ function manejarSubmenuPacientes($opcion) {
 
 function mostrarSubmenuMedicos() {
     echo "\nMenú de Médicos\n";
-    echo "1. Listar Médicos\n";
-    echo "2. Volver al Menú Principal\n";
+    echo "1. Listar todos los Médicos\n";
+    echo "2. Listar Médicos por especialidad\n";//agregada
+    echo "3. Volver al Menú Principal\n";
     echo "Selecciona una opción: ";
 
     $opcion = trim(fgets(STDIN));
@@ -41,6 +42,10 @@ function manejarSubmenuMedicos($opcion) {
             listarMedicos();
             break;
         case '2':
+            $especialidad = trim(fgets(STDIN));
+            listarMedicosPorEspecialidad($especialidad);
+            break;    
+        case '3':
             mostrarMenu(); // Volver al menú principal
             break;
         default:
