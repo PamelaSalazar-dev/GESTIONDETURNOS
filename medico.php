@@ -1,3 +1,4 @@
+
 <?php
 
 class Medico {
@@ -23,3 +24,4 @@ function listarMedicos() {
     }
 }
 ?>
+
