@@ -1,8 +1,8 @@
 <?php
 require_once 'conexion.php';
-require_once 'paciente.php';
-require_once 'medico.php';
-require_once 'menu.php';
+require_once 'Paciente.php';
+require_once 'Medico.php';
+require_once 'Menu.php';
 
 function manejarOpcion($opcion) {
     switch ($opcion) {
@@ -17,7 +17,7 @@ function manejarOpcion($opcion) {
             break;
         case '4':
             exit("Saliendo...\n");
-            break;
+            //break;
         default:
             echo "Opción no válida. Inténtalo de nuevo.\n";
             mostrarMenu();

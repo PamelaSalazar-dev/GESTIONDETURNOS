@@ -13,7 +13,7 @@ function mostrarSubmenuPacientes() {
 function manejarSubmenuPacientes($opcion) {
     switch ($opcion) {
         case '1':
-            listarPacientes();
+            //listarPacientes();
             break;
         case '2':
             mostrarMenu(); // Volver al menú principal
@@ -39,11 +39,11 @@ function mostrarSubmenuMedicos() {
 function manejarSubmenuMedicos($opcion) {
     switch ($opcion) {
         case '1':
-            listarMedicos();
+            //listarMedicos();
             break;
         case '2':
             $especialidad = trim(fgets(STDIN));
-            listarMedicosPorEspecialidad($especialidad);
+            //listarMedicosPorEspecialidad($especialidad);
             break;    
         case '3':
             mostrarMenu(); // Volver al menú principal
@@ -54,4 +54,3 @@ function manejarSubmenuMedicos($opcion) {
             break;
     }
 }
-?>
