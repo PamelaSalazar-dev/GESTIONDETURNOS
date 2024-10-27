@@ -26,7 +26,7 @@ class Conexion {
     
     public static function comprobarConexion() {
         try {
-            $pdo = self::getConexion();  // Asegura que la conexión esté establecida
+            $pdo = self::getConexion();  
             if ($pdo !== null) {
                 $statement = $pdo->query("SELECT VERSION()");
                 $version = $statement->fetchColumn();
@@ -56,7 +56,7 @@ class Conexion {
     }
 }
 
-// Comprobar la conexión
+// Comprobamos la conexión
 Conexion::comprobarConexion();
 
 ?>
