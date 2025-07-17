@@ -3,7 +3,7 @@
 class Conexion {
     private static $db = null;
     private static $host = 'localhost';  
-    private static $dbname = 'gestionturnos'; 
+    private static $dbname = 'gestiondeturnos'; 
     private static $user = 'root';  
     private static $password = '07062020';  
     
@@ -19,7 +19,7 @@ class Conexion {
 
     public static function getConexion() {
         if (self::$db === null) {
-            new self();  // Establece la conexión si aún no está establecida
+            new self();  
         }
         return self::$db;
     }
