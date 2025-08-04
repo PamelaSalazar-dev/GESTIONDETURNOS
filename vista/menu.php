@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../controllers/pacienteController.php';
 require_once __DIR__ . '/../controllers/medicoController.php';
 require_once __DIR__ . '/../controllers/turnoController.php';
+require_once __DIR__ . '/../models/persona.php'; // Para validar DNI en personas
 
 function limpiarConsola() {
     if (strncasecmp(PHP_OS, 'WIN', 3) == 0) {
@@ -58,6 +59,12 @@ function mostrarSubmenuPacientes() {
             case '1':
                 echo "Ingrese DNI (8 dígitos): ";
                 $dni = trim(fgets(STDIN));
+                
+                if (!Persona::existe($dni)) {
+                    echo "\033[31m❌ El DNI no existe en la tabla personas. No se puede agregar paciente.\033[0m\n";
+                    break;
+                }
+                
                 echo "Ingrese nombre: ";
                 $nombre = trim(fgets(STDIN));
                 echo "Ingrese Obra Social: ";
@@ -106,24 +113,23 @@ function mostrarSubmenuMedicos() {
         $opcion = trim(fgets(STDIN));
 
         switch ($opcion) {
-            case 1: // Agregar Médico
-    do {
-        echo "Ingrese Matrícula del médico (5 números): ";
-        $matricula = trim(fgets(STDIN));
-        if (!Validador::validarMatricula($matricula)) {
-            echo "❌ Matrícula inválida. Debe contener exactamente 5 números.\n";
-        }
-    } while (!Validador::validarMatricula($matricula));
+            case '1': // Agregar Médico
+                do {
+                    echo "Ingrese Matrícula del médico (5 números): ";
+                    $matricula = trim(fgets(STDIN));
+                    if (!Validador::validarMatricula($matricula)) {
+                        echo "❌ Matrícula inválida. Debe contener exactamente 5 números.\n";
+                    }
+                } while (!Validador::validarMatricula($matricula));
 
-    echo "Ingrese Especialidad del médico: ";
-    $especialidad = trim(fgets(STDIN));
+                echo "Ingrese Especialidad del médico: ";
+                $especialidad = trim(fgets(STDIN));
 
-    echo "Ingrese DNI del médico: ";
-    $dni = trim(fgets(STDIN));
+                echo "Ingrese DNI del médico: ";
+                $dni = trim(fgets(STDIN));
 
-    MedicoController::agregarMedico($matricula, $especialidad, $dni);
-    break;
-
+                MedicoController::agregarMedico($matricula, $especialidad, $dni);
+                break;
 
             case '2':
                 MedicoController::listarMedicos();
@@ -147,16 +153,15 @@ function mostrarSubmenuMedicos() {
     } while (true);
 }
 
-
 function mostrarSubmenuTurnos() {
     do {
         limpiarConsola();
         echo "\n\033[1;36m=== Turnos Médicos ===\033[0m\n";
         echo "1. Solicitar Turno\n";
         echo "2. Listar Turnos\n";
-        echo "3. cancelar turno\n";
-        echo "4. modificar turno\n";
-        echo "0.volver al menu principal\n";
+        echo "3. Cancelar Turno\n";
+        echo "4. Modificar Turno\n";
+        echo "0. Volver al Menú Principal\n";
         echo "Seleccione una opción: ";
         $opcion = trim(fgets(STDIN));
 
@@ -173,7 +178,7 @@ function mostrarSubmenuTurnos() {
             case '4':
                 TurnoController::modificarTurno();
                 break;
-            case '0';
+            case '0':
                 return;
             default:
                 echo "❌ Opción inválida.\n";

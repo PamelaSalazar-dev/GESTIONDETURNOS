@@ -52,6 +52,12 @@ class TurnoController {
             echo "Ingrese fecha para el turno (YYYY-MM-DD): ";
             $fechaInput = trim(fgets(STDIN));
 
+            // NUEVO: salir si no se ingresa nada
+            if (empty($fechaInput)) {
+                echo "\033[33m⚠️ Entrada vacía. Cancelando operación.\033[0m\n";
+                return;
+            }
+
             if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaInput)) {
                 echo "\033[31m❌ Formato inválido. Use guiones (YYYY-MM-DD)\033[0m\n";
                 sleep(2);
@@ -227,7 +233,6 @@ class TurnoController {
 
         $conexion = Conexion::getConexion();
 
-        // Verificamos que no exista ya un turno en la nueva fecha para este paciente
         $stmtCheck = $conexion->prepare("SELECT COUNT(*) FROM turnos WHERE dniPaciente = ? AND fechaTurno = ?");
         $stmtCheck->execute([$dniPaciente, $nuevaFecha]);
 
@@ -236,7 +241,6 @@ class TurnoController {
             return;
         }
 
-        // Actualizamos el turno
         $stmtUpdate = $conexion->prepare("UPDATE turnos SET fechaTurno = ? WHERE dniPaciente = ? AND fechaTurno = ?");
         $stmtUpdate->execute([$nuevaFecha, $dniPaciente, $fechaActual]);
 
@@ -248,4 +252,3 @@ class TurnoController {
     }
 }
 ?>
-
