@@ -31,23 +31,5 @@ class Persona {
         $stmt->execute([$dni]);
         return $stmt->fetchColumn();
     }
-
-    public static function guardar($dni, $nombre) {
-        if (self::existe($dni)) {
-            echo "⚠️ Ya existe una persona con ese DNI.\n";
-            return false;
-        }
-
-        $conexion = Conexion::getConexion();
-        try {
-            $stmt = $conexion->prepare("INSERT INTO personas (dni, nombre) VALUES (?, ?)");
-            $stmt->execute([$dni, $nombre]);
-            return true;
-        } catch (PDOException $e) {
-            echo "❌ Error al guardar en personas: " . $e->getMessage() . "\n";
-            return false;
-        }
-    }
 }
 ?>
-

@@ -1,11 +1,7 @@
 <?php
 class FuncionesAuxiliares {
     public static function limpiarPantalla() {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            system('cls');
-        } else {
-            system('clear');
-        }
+        echo str_repeat("\n", 50);
     }
 
     public static function pausar() {

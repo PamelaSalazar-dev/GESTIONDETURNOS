@@ -2,7 +2,6 @@
 require_once 'conexion.php';
 require_once __DIR__ . '/../utils/validador.php';
 
-
 class Turno {
     private $dniMedico;
     private $dniPaciente;
@@ -56,12 +55,14 @@ class Turno {
         return $stmt->fetchColumn() > 0;
     }
 
+    // Lista todos los turnos, ahora incluyendo el dniPaciente
     public static function listarTurnos() {
         $conexion = Conexion::getConexion();
         $sql = "SELECT 
                     t.fechaTurno, 
                     t.idSala, 
                     t.nombreConsultorio,
+                    p.dni AS dniPaciente, 
                     p.nombre AS nombrePaciente, 
                     m.nombre AS nombreMedico
                 FROM turnos t
@@ -141,17 +142,20 @@ class Turno {
         }
     }
 
-    public static function obtenerTurnosPorPaciente($dniPaciente) {
-        $conexion = Conexion::getConexion();
-        $stmt = $conexion->prepare("
-            SELECT fechaTurno, idSala, nombreConsultorio
-            FROM turnos
-            WHERE dniPaciente = ?
-            ORDER BY fechaTurno ASC
-        ");
-        $stmt->execute([$dniPaciente]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    // Obtiene turnos específicos por DNI de paciente, útil para el menú cancelar turno
+   public static function obtenerTurnosPorPaciente($dniPaciente) {
+    $conexion = Conexion::getConexion();
+    $stmt = $conexion->prepare("
+        SELECT fechaTurno, idSala, nombreConsultorio
+        FROM turnos
+        WHERE dniPaciente = ?
+        ORDER BY fechaTurno ASC
+    ");
+    $stmt->execute([$dniPaciente]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+   }
 }
+
 ?>
+
 

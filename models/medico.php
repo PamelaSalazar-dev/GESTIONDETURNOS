@@ -2,110 +2,80 @@
 require_once 'conexion.php';
 
 class Medico {
-    private $matricula;
-    private $especialidad;
-    private $dni;
-
-    public function __construct($matricula, $especialidad, $dni) {
-        $this->matricula = $matricula;
-        $this->especialidad = $especialidad;
-        $this->dni = $dni;
-    }
-
-    public function guardar() {
+    public static function obtenerMedicos() {
         $conexion = Conexion::getConexion();
-
-        try {
-            // Verificar que el DNI exista en personas
-            $stmtCheck = $conexion->prepare("SELECT COUNT(*) FROM personas WHERE dni = ?");
-            $stmtCheck->execute([$this->dni]);
-
-            if ($stmtCheck->fetchColumn() == 0) {
-                echo "❌ No se puede agregar médico porque el DNI no existe en personas.\n";
-                return false;
-            }
-
-            // Insertar en medicos
-            $stmt = $conexion->prepare("INSERT INTO medicos (matricula, especialidad, dni) VALUES (?, ?, ?)");
-            $stmt->execute([$this->matricula, $this->especialidad, $this->dni]);
-
-            return true;
-
-        } catch (PDOException $e) {
-            if (str_contains($e->getMessage(), 'Integrity constraint violation')) {
-                echo "❌ No se pudo guardar el médico: verifique si ya existe o si el DNI está duplicado.\n";
-            } else {
-                echo "❌ Error inesperado al guardar médico: " . $e->getMessage() . "\n";
-            }
-            return false;
-        }
-    }
-
-    public static function eliminar($dni) {
-        $conexion = Conexion::getConexion();
-
-        try {
-            // Verificar si tiene turnos asignados
-            $stmtCheck = $conexion->prepare("SELECT COUNT(*) FROM turnos WHERE dniMedico = ?");
-            $stmtCheck->execute([$dni]);
-
-            if ($stmtCheck->fetchColumn() > 0) {
-                echo "❌ No se puede eliminar el médico porque tiene turnos asignados. Cancele sus turnos primero.\n";
-                return false;
-            }
-
-            // Eliminar médico
-            $stmt = $conexion->prepare("DELETE FROM medicos WHERE dni = ?");
-            return $stmt->execute([$dni]);
-
-        } catch (PDOException $e) {
-            echo "❌ Error inesperado al eliminar médico: " . $e->getMessage() . "\n";
-            return false;
-        }
-    }
-
-    public static function listarMedicos() {
-        $conexion = Conexion::getConexion();
-        $stmt = $conexion->query("
-            SELECT m.matricula, m.especialidad, p.nombre, m.dni
-            FROM medicos m
-            JOIN personas p ON m.dni = p.dni
-        ");
+        $sql = "SELECT m.dni, m.matricula, m.especialidad, p.nombre 
+                FROM medicos m
+                JOIN personas p ON m.dni = p.dni
+                ORDER BY p.nombre";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public static function existeMedico($dni) {
-        $conexion = Conexion::getConexion();
-        $stmt = $conexion->prepare("SELECT COUNT(*) FROM medicos WHERE dni = ?");
-        $stmt->execute([$dni]);
-        return $stmt->fetchColumn() > 0;
     }
 
     public static function obtenerEspecialidades() {
         $conexion = Conexion::getConexion();
-        $stmt = $conexion->query("SELECT DISTINCT especialidad FROM medicos");
+        $sql = "SELECT DISTINCT especialidad FROM medicos ORDER BY especialidad";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
     public static function obtenerMedicosPorEspecialidad($especialidad) {
         $conexion = Conexion::getConexion();
-        $stmt = $conexion->prepare("
-            SELECT m.matricula, m.dni, p.nombre 
-            FROM medicos m
-            JOIN personas p ON m.dni = p.dni
-            WHERE m.especialidad = ?
-        ");
+        $sql = "SELECT m.dni, m.matricula, p.nombre 
+                FROM medicos m
+                JOIN personas p ON m.dni = p.dni
+                WHERE m.especialidad = ?";
+        $stmt = $conexion->prepare($sql);
         $stmt->execute([$especialidad]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Getters
-    public function getMatricula() {
-        return $this->matricula;
+    public static function existeMedico($dni) {
+        $conexion = Conexion::getConexion();
+        $sql = "SELECT COUNT(*) FROM medicos WHERE dni = ?";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$dni]);
+        return $stmt->fetchColumn() > 0;
     }
 
-    public function getEspecialidad() {
-        return $this->especialidad;
+    public static function agregar($dni, $matricula, $especialidad) {
+        if (self::existeMedico($dni)) {
+            return false; // Ya existe
+        }
+        $conexion = Conexion::getConexion();
+        $sql = "INSERT INTO medicos (dni, matricula, especialidad) VALUES (?, ?, ?)";
+        $stmt = $conexion->prepare($sql);
+        return $stmt->execute([$dni, $matricula, $especialidad]);
     }
+
+    public static function tieneTurnos($dniMedico) {
+        $conexion = Conexion::getConexion();
+        $sql = "SELECT COUNT(*) FROM turnos WHERE dniMedico = ?";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$dniMedico]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    public static function eliminar($dni) {
+        if (self::tieneTurnos($dni)) {
+            return false; // No puede eliminar porque tiene turnos asignados
+        }
+        $conexion = Conexion::getConexion();
+        $sql = "DELETE FROM medicos WHERE dni = ?";
+        $stmt = $conexion->prepare($sql);
+        return $stmt->execute([$dni]);
+    }
+    public static function listar() {
+    $conexion = Conexion::getConexion();
+    $sql = "SELECT m.dni, p.nombre, m.matricula, m.especialidad
+            FROM medicos m
+            JOIN personas p ON m.dni = p.dni";
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 }
 ?>

@@ -1,11 +1,10 @@
 <?php
-
 class Conexion {
     private static $db = null;
     private static $host = 'localhost';  
     private static $dbname = 'gestiondeturnos'; 
     private static $user = 'root';  
-    private static $password = '07062020';  
+    private static $password = '';  
     
     private function __construct() {
         try {
@@ -30,33 +29,13 @@ class Conexion {
             if ($pdo !== null) {
                 $statement = $pdo->query("SELECT VERSION()");
                 $version = $statement->fetchColumn();
-                echo "Conexión exitosa. Versión de MySQL: " . $version;
+                echo "Conexión exitosa. Versión de MySQL: " . $version . "\n";
             } else {
-                echo "Conexión fallida.";
+                echo "Conexión fallida.\n";
             }
         } catch (PDOException $e) {
-            echo "Error al comprobar la conexión: " . $e->getMessage();
-        }
-    }
-
-    public static function query($sql) {
-        $pdo = self::getConexion();
-        if ($pdo !== null) {
-            try {
-                $statement = $pdo->query($sql);
-                return $statement->fetchAll(PDO::FETCH_OBJ);
-            } catch (PDOException $e) {
-                echo "Error en la consulta SQL: " . $e->getMessage();
-                return [];
-            }
-        } else {
-            echo "No se pudo ejecutar la consulta: la conexión es nula.";
-            return [];
+            echo "Error al comprobar la conexión: " . $e->getMessage() . "\n";
         }
     }
 }
 
-// Comprobamos la conexión
-Conexion::comprobarConexion();
-
-?>

@@ -1,55 +1,54 @@
 <?php
-require_once __DIR__ . '/../models/medico.php';
-require_once __DIR__ . '/../utils/validador.php';
+require_once 'models/Medico.php';
+require_once 'models/Persona.php';  // <-- agregado para validar existencia de persona
+require_once 'models/Paciente.php'; // <-- agregado para validar que no sea paciente
 
 class MedicoController {
 
-    public static function agregarMedico($matricula, $especialidad, $dni) {
-        if (!Validador::validarMatricula($matricula)) {
-            echo "❌ Matrícula inválida. Debe contener exactamente 5 números.\n";
-            return;
+    public static function agregarMedico($dni, $matricula, $especialidad) {
+        if (!Persona::existe($dni)) {
+            return ['error' => 'No existe persona con DNI ' . $dni];
         }
-
-        if (!Validador::validarNombre($especialidad)) {
-            echo "❌ Especialidad inválida. Solo se permiten letras y espacios.\n";
-            return;
+        if (Medico::existeMedico($dni)) {
+            return ['error' => 'Ya existe un médico con DNI ' . $dni];
         }
-
-        if (!Validador::validarDNI($dni)) {
-            echo "❌ DNI inválido. Debe contener exactamente 8 dígitos.\n";
-            return;
+        if (Paciente::existePaciente($dni)) {
+            return ['error' => 'El DNI ' . $dni . ' ya está registrado como paciente'];
         }
-
-        $medico = new Medico($matricula, $especialidad, $dni);
-        if ($medico->guardar()) {
-            echo "✅ Médico agregado exitosamente.\n";
+        $resultado = Medico::agregar($dni, $matricula, $especialidad);
+        if ($resultado) {
+            return ['success' => 'Médico agregado correctamente.'];
         } else {
-            echo "❌ No se pudo agregar el médico.\n";
-        }
-    }
-
-    public static function eliminarMedico($dni) {
-        if (!Validador::validarDNI($dni)) {
-            echo "❌ DNI inválido.\n";
-            return;
-        }
-
-        if (Medico::eliminar($dni)) {
-            echo "✅ Médico eliminado exitosamente.\n";
-        } else {
-            echo "❌ No se pudo eliminar el médico. Verifique si tiene turnos asignados.\n";
+            return ['error' => 'Error al agregar médico.'];
         }
     }
 
     public static function listarMedicos() {
-        $medicos = Medico::listarMedicos();
-        if (empty($medicos)) {
-            echo "⚠️ No hay médicos registrados.\n";
-        } else {
-            foreach ($medicos as $medico) {
-                echo "Matrícula: {$medico['matricula']} | Nombre: {$medico['nombre']} | Especialidad: {$medico['especialidad']} | DNI: {$medico['dni']}\n";
-            }
+        return Medico::listar();
+    }
+
+    public static function eliminarMedico($dni) {
+        if (Medico::tieneTurnos($dni)) {
+            return ['error' => 'No se puede eliminar el médico porque tiene turnos asignados.'];
         }
+        $resultado = Medico::eliminar($dni);
+        if ($resultado) {
+            return ['success' => 'Médico eliminado correctamente.'];
+        } else {
+            return ['error' => 'Error al eliminar médico.'];
+        }
+    }
+
+    public static function existeMedico($dni) {
+        return Medico::existeMedico($dni);
+    }
+
+    public static function obtenerMedicosPorEspecialidad($especialidad) {
+        return Medico::obtenerMedicosPorEspecialidad($especialidad);
+    }
+
+    public static function obtenerEspecialidades() {
+        return Medico::obtenerEspecialidades();
     }
 }
 ?>
