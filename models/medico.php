@@ -40,6 +40,14 @@ class Medico {
         return $stmt->fetchColumn() > 0;
     }
 
+    public static function existeComoPaciente($dni) {
+        $conexion = Conexion::getConexion();
+        $sql = "SELECT COUNT(*) FROM pacientes WHERE dni = ?";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$dni]);
+        return $stmt->fetchColumn() > 0;
+    }
+
     public static function agregar($dni, $matricula, $especialidad) {
         if (self::existeMedico($dni)) {
             return false; // Ya existe
@@ -59,23 +67,34 @@ class Medico {
     }
 
     public static function eliminar($dni) {
+        // Primero: verificar si existe el médico
+        if (!self::existeMedico($dni)) {
+            return "no_existe"; // El médico no existe
+        }
+        // Segundo: verificar si es paciente
+        if (self::existeComoPaciente($dni)) {
+            return "paciente"; // No se puede eliminar porque también es paciente
+        }
+        // Tercero: verificar si tiene turnos
         if (self::tieneTurnos($dni)) {
             return false; // No puede eliminar porque tiene turnos asignados
         }
+        // Si pasa las validaciones, eliminar
         $conexion = Conexion::getConexion();
         $sql = "DELETE FROM medicos WHERE dni = ?";
         $stmt = $conexion->prepare($sql);
         return $stmt->execute([$dni]);
     }
-    public static function listar() {
-    $conexion = Conexion::getConexion();
-    $sql = "SELECT m.dni, p.nombre, m.matricula, m.especialidad
-            FROM medicos m
-            JOIN personas p ON m.dni = p.dni";
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
 
+    public static function listar() {
+        $conexion = Conexion::getConexion();
+        $sql = "SELECT m.dni, p.nombre, m.matricula, m.especialidad
+                FROM medicos m
+                JOIN personas p ON m.dni = p.dni";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 ?>
+

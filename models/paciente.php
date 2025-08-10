@@ -17,11 +17,10 @@ class Paciente {
         return $stmt->fetchColumn();
     }
 
-    public static function agregar($dni,$nombre ,$obraSocial, $historiaClinica) {
+    public static function agregar($dni, $nombre, $obraSocial, $historiaClinica) {
         if (self::existePaciente($dni)) {
             return false; // Ya existe paciente con ese DNI
         }
-        // No validamos existencia en personas acá, queda para el controlador
         $pdo = Conexion::getConexion();
         $stmt = $pdo->prepare("INSERT INTO pacientes (dni, obraSocial, historiaClinica) VALUES (:dni, :obraSocial, :historiaClinica)");
         return $stmt->execute([
@@ -47,7 +46,19 @@ class Paciente {
         if (!self::existePaciente($dni)) {
             return false;
         }
+
         $pdo = Conexion::getConexion();
+
+        // Verificar si tiene turnos asociados
+        $consulta = $pdo->prepare("SELECT COUNT(*) FROM turnos WHERE dniPaciente = :dni");
+        $consulta->execute(['dni' => $dni]);
+        $tieneTurnos = $consulta->fetchColumn();
+
+        if ($tieneTurnos > 0) {
+            echo "No se puede eliminar el paciente porque tiene turnos asignados.\n";
+            return false;
+        }
+
         $stmt = $pdo->prepare("DELETE FROM pacientes WHERE dni = :dni");
         return $stmt->execute(['dni' => $dni]);
     }
@@ -61,4 +72,5 @@ class Paciente {
     }
 }
 ?>
+
 

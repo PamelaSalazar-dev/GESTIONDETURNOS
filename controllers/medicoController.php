@@ -1,7 +1,7 @@
 <?php
 require_once 'models/Medico.php';
-require_once 'models/Persona.php';  // <-- agregado para validar existencia de persona
-require_once 'models/Paciente.php'; // <-- agregado para validar que no sea paciente
+require_once 'models/Persona.php';  // <-- para validar existencia de persona
+require_once 'models/Paciente.php'; // <-- para validar que no sea paciente
 
 class MedicoController {
 
@@ -28,10 +28,22 @@ class MedicoController {
     }
 
     public static function eliminarMedico($dni) {
-        if (Medico::tieneTurnos($dni)) {
+        // Primero verifico que el médico exista
+        if (!Medico::existeMedico($dni)) {
+            return ['error' => 'No existe médico con ese DNI.'];
+        }
+
+        // Llamo a eliminar, que puede devolver "paciente", false o true
+        $resultado = Medico::eliminar($dni);
+
+        if ($resultado === "paciente") {
+            return ['error' => 'No se puede eliminar el médico porque también está registrado como paciente.'];
+        }
+
+        if ($resultado === false) {
             return ['error' => 'No se puede eliminar el médico porque tiene turnos asignados.'];
         }
-        $resultado = Medico::eliminar($dni);
+
         if ($resultado) {
             return ['success' => 'Médico eliminado correctamente.'];
         } else {
@@ -52,3 +64,4 @@ class MedicoController {
     }
 }
 ?>
+
