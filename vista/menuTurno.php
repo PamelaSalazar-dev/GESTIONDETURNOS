@@ -16,7 +16,7 @@ function mostrarMenuTurno() {
 
         switch ($opcion) {
             case 1:
-                // Solicitar turno paso a paso respetando la lógica que tenías
+                // Solicitar turno 
                 $especialidades = TurnoController::obtenerEspecialidades();
                 if (empty($especialidades)) {
                     echo "No hay especialidades disponibles.\n";
@@ -99,7 +99,7 @@ function mostrarMenuTurno() {
                 }
 
                 if (!TurnoController::agregarTurno($medico['dni'], $dniPaciente, $fechaHora)) {
-                    echo "No se pudo reservar el turno (¿Ya tiene turno en esa fecha/hora o no hay salas disponibles?).\n";
+                    echo "No se pudo reservar el turno (¿Ya tiene turno en esa fecha/hora?).\n";
                 } else {
                     echo "Turno reservado exitosamente.\n";
                 }
@@ -117,6 +117,7 @@ function mostrarMenuTurno() {
                         echo "Médico: {$t['nombreMedico']}\n";
                         echo "Fecha y hora: {$t['fechaTurno']}\n";
                         echo "Sala: {$t['idSala']}\n";
+                        echo "Consultorio: {$t['nombreConsultorio']}\n"; // agregado
                     }
                     echo "------------------------------\n\n";
                 }
@@ -197,10 +198,13 @@ function mostrarMenuTurno() {
                     break;
                 }
 
-                if (TurnoController::modificarTurno($dniModificar, $fechaActual, $nuevaFecha)) {
-                    echo "Turno modificado correctamente.\n";
+                // Aca recibimos el resultado que es array con 'success' o 'error'
+                $resultado = TurnoController::modificarTurno($dniModificar, $fechaActual, $nuevaFecha);
+
+                if (isset($resultado['success'])) {
+                    echo $resultado['success'] . "\n";
                 } else {
-                    echo "No se pudo modificar el turno (¿existe turno o conflicto?).\n";
+                    echo $resultado['error'] . "\n";
                 }
                 break;
 

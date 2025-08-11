@@ -55,7 +55,7 @@ class Turno {
         return $stmt->fetchColumn() > 0;
     }
 
-    // Lista todos los turnos, ahora incluyendo el dniPaciente
+    // Lista todos los turnos, ahora incluyendo dniPaciente, dniMedico y nombreConsultorio
     public static function listarTurnos() {
         $conexion = Conexion::getConexion();
         $sql = "SELECT 
@@ -64,6 +64,7 @@ class Turno {
                     t.nombreConsultorio,
                     p.dni AS dniPaciente, 
                     p.nombre AS nombrePaciente, 
+                    m.dni AS dniMedico,
                     m.nombre AS nombreMedico
                 FROM turnos t
                 JOIN personas p ON t.dniPaciente = p.dni
@@ -142,20 +143,19 @@ class Turno {
         }
     }
 
-    // Obtiene turnos específicos por DNI de paciente, útil para el menú cancelar turno
-   public static function obtenerTurnosPorPaciente($dniPaciente) {
-    $conexion = Conexion::getConexion();
-    $stmt = $conexion->prepare("
-        SELECT fechaTurno, idSala, nombreConsultorio
-        FROM turnos
-        WHERE dniPaciente = ?
-        ORDER BY fechaTurno ASC
-    ");
-    $stmt->execute([$dniPaciente]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-   }
+    // Obtiene turnos específicos por DNI de paciente
+    public static function obtenerTurnosPorPaciente($dniPaciente) {
+        $conexion = Conexion::getConexion();
+        $stmt = $conexion->prepare("
+            SELECT fechaTurno, idSala, nombreConsultorio
+            FROM turnos
+            WHERE dniPaciente = ?
+            ORDER BY fechaTurno ASC
+        ");
+        $stmt->execute([$dniPaciente]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
 
 ?>
-
 

@@ -56,7 +56,14 @@ class TurnoController {
 
     // Listar todos los turnos (array)
     public static function listarTurnos() {
-        return Turno::listarTurnos();
+        $turnos = Turno::listarTurnos();
+        // 🔹 Aseguramos que siempre incluya el consultorio
+        foreach ($turnos as &$t) {
+            if (empty($t['nombreConsultorio'])) {
+                $t['nombreConsultorio'] = 'SaludAR';
+            }
+        }
+        return $turnos;
     }
 
     // Cancelar turno, devuelve true si pudo, false si no
@@ -64,23 +71,49 @@ class TurnoController {
         return Turno::cancelarTurno($dniPaciente, $fechaHora);
     }
 
-    // Modificar turno, devuelve true si pudo, false si no
+    // Modificar turno, devuelve array con 'success' o 'error' y mensaje
     public static function modificarTurno($dniPaciente, $fechaActual, $nuevaFecha) {
         // Validar paciente
         if (!Paciente::existePaciente($dniPaciente)) {
-            return false;
+            return ['error' => 'El paciente no existe.'];
+        }
+
+        // Validar formato fecha y hora
+        $dt = DateTime::createFromFormat('Y-m-d H:i:s', $nuevaFecha);
+        if (!$dt || $dt->format('Y-m-d H:i:s') !== $nuevaFecha) {
+            return ['error' => 'Formato de fecha y hora inválido.'];
+        }
+
+        // Validar que los minutos sean 00 o 30
+        $minutos = (int)$dt->format('i');
+        if ($minutos !== 0 && $minutos !== 30) {
+            return ['error' => 'Los minutos deben ser 00 o 30.'];
+        }
+
+        // Validar que la hora esté dentro del rango permitido 09:00 a 15:00
+        $hora = (int)$dt->format('H');
+        if ($hora < 9 || $hora > 15) {
+            return ['error' => 'La hora debe estar entre 09:00 y 15:00.'];
+        }
+        // Si la hora es 15, entonces los minutos deben ser 00 (15:30 no es válido)
+        if ($hora === 15 && $minutos !== 0) {
+            return ['error' => 'El último turno válido es a las 15:00.'];
         }
 
         // Validar que paciente no tenga turno en nueva fecha/hora
         if (Turno::pacienteTieneTurno($dniPaciente, $nuevaFecha)) {
-            return false;
+            return ['error' => 'El paciente ya tiene un turno en esa fecha y hora.'];
         }
 
         $conexion = Conexion::getConexion();
-        $stmtUpdate = $conexion->prepare("UPDATE turnos SET fechaTurno = ? WHERE dniPaciente = ? AND fechaTurno = ?");
+        $stmtUpdate = $conexion->prepare("UPDATE turnos SET fechaTurno = ?, nombreConsultorio = 'SaludAR' WHERE dniPaciente = ? AND fechaTurno = ?");
         $stmtUpdate->execute([$nuevaFecha, $dniPaciente, $fechaActual]);
 
-        return $stmtUpdate->rowCount() > 0;
+        if ($stmtUpdate->rowCount() > 0) {
+            return ['success' => 'Turno modificado correctamente.'];
+        } else {
+            return ['error' => 'No se pudo modificar el turno.'];
+        }
     }
 
     // Función nueva para obtener todos los turnos de un paciente (para mostrar en menú)

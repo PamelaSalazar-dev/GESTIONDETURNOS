@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../controllers/PacienteController.php';
 require_once __DIR__ . '/../utils/Validador.php';
-require_once __DIR__ . '/../models/Persona.php'; // Para validar nombre contra DNI
+require_once __DIR__ . '/../models/Persona.php'; // Para validar nombre con elDNI
 
 function mostrarMenuPaciente() {
     do {
@@ -24,7 +24,7 @@ function mostrarMenuPaciente() {
                     break;
                 }
 
-                // Si existe la persona, validar nombre contra la base
+                // Si existe la persona, validar nombre contra la base(si coincide nombre con dni)
                 if (Persona::existe($dni)) {
                     $nombreRegistrado = Persona::obtenerNombre($dni);
                     echo "Ingrese nombre: ";
@@ -87,7 +87,7 @@ function mostrarMenuPaciente() {
                 break;
 
             case 3:
-                // Modificar paciente (obra social)
+                // Modificar paciente (solamante moficamos laobra social)
                 echo "Ingrese DNI del paciente a modificar: ";
                 $dniMod = trim(fgets(STDIN));
                 if (!Validador::validarDNI($dniMod)) {

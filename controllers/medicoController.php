@@ -37,7 +37,7 @@ class MedicoController {
         $resultado = Medico::eliminar($dni);
 
         if ($resultado === "paciente") {
-            return ['error' => 'No se puede eliminar el médico porque también está registrado como paciente.'];
+            return ['error' => 'No se puede eliminar el médico porque no existe como tal.'];
         }
 
         if ($resultado === false) {
